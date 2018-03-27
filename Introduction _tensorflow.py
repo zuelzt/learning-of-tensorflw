@@ -51,7 +51,33 @@ maybe_I_use_another_name.close()
 #we use Tensor to represent all data.
 #We can think of a TensorFlow tensor as an n-dimensional array or list. 
 
-#Variables
+#Variables & Fetches
+a = tf.Variable(0, name="zt")  #we can use "print(a.name)" to get "zt:0"
+b = tf.constant(12)
+c = tf.constant(1)  
+new1 = tf.add(a, c)  # a tensor
+new2 = tf.mul(b, 2) 
+update1 = tf.assign(a, new1)  #state <- new
+
+init = tf.initialize_all_variables()
+with tf.Session() as sess:
+    sess.run(init)
+    #print(sess.run(a))
+    for _ in range(5):
+        #sess.run(new)
+        sess.run(update1)
+        print(sess.run([a, new2]))
+#sess.run() 会自动运行 Tensor add ？
+
+#Feed
+input1 = tf.placeholder(tf.float32)
+input2 = tf.placeholder(tf.float32)
+output = tf.mul(input1, input2)
+
+with tf.Session() as sess:
+    print(sess.run(output, feed_dict={input1:[2], input2:4}))  #only use once
+
+
 
 
 
