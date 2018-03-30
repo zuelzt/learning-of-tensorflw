@@ -14,7 +14,12 @@ import tensorflow as tf
 import tensorflow.contrib.eager as tfe
 import numpy as np
 
+# set eager API
+tfe.enable_eager_execution()  # only be called once at program startup.
 
+# have a try
+a = tf.constant(2)
+print("a = {}".format(a))
 
 
 
