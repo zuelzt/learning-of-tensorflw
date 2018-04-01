@@ -80,9 +80,10 @@ test_X, test_y = mnist.test.images, mnist.test.labels
 print("accuracy: {0:.4f}".format(sess.run(accuracy_value, feed_dict={X: test_X, y: test_y})))
 
 
-##----------------------------------
-# when k = 500, temperature of my Macbook Pro CPU core come to 100 ℃ , get accuracy 0.9345
-
+##----------------------------------------------------------------------------------------
+# when k = 500, temperature of my Macbook Pro CPU core come to 100 ℃ and model gets accuracy 0.9345.
+# Macbook don't have NVIDIA GPU. And I can't afford eGPUs.  TAT
+# Sorry my dear.
 
 
 
