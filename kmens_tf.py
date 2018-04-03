@@ -2,13 +2,12 @@
 # -*- coding: utf-8 -*-
 """
 Created on Sat Mar 31 20:47:39 2018
-
 @author: Rorschach
 @mail: 188581221@qq.com
 """
 import warnings
 warnings.filterwarnings('ignore')
-import time
+
 import numpy as np
 import tensorflow as tf
 from tensorflow.contrib.factorization import KMeans
@@ -26,20 +25,17 @@ num_classes = 10  # 0, 1, 2, ..... ,9, 10
 num_features = 28 * 28  # features
 
 # set input
-with tf.name_scope('Input'):
-    X = tf.placeholder(tf.float32, shape=[None, num_features])
-    y = tf.placeholder(tf.float32, shape=[None, num_classes])
+X = tf.placeholder(tf.float32, shape=[None, num_features])
+y = tf.placeholder(tf.float32, shape=[None, num_classes])
 
 # K-Means
-with tf.name_scope('Model'):
-    kmeans = KMeans(inputs=X, num_clusters=k, distance_metric='cosine', use_mini_batch=True)
+kmeans = KMeans(inputs=X, num_clusters=k, distance_metric='cosine', use_mini_batch=True)
 # 夹角余弦距离， use_mini_batch 是一种每一次迭代随机抽取较小样本进行聚类的大数据处理方法，
 # 在不损失过多精确度的前提下提高速度
 
 # build
-with tf.name_scope('train'):
-    (all_scores, cluster_idx, scores, cluster_centers_initialized,#cluster_centers_vars,
-     init_op, train_op) = kmeans.training_graph()
+(all_scores, cluster_idx, scores, cluster_centers_initialized,#cluster_centers_vars,
+ init_op, train_op) = kmeans.training_graph()
 # all_scores: all distance
 # cluster_idx: model predictions
 #scores: losses
@@ -48,36 +44,22 @@ with tf.name_scope('train'):
 #init_op: an op to choose the initial cluster centers
 #train_op: an op that runs an iteration of training
 cluster_idx = cluster_idx[0]  # be a tuple
-with tf.name_scope('avg_distances'):
-    avg_distance = tf.reduce_mean(scores)
-    tf.summary.scalar('avg_distance', avg_distance)
+avg_distance = tf.reduce_mean(scores)
 
 # initialize
-with tf.name_scope('init'):
-    init = tf.global_variables_initializer()  # all_variables_initializer() is delete
+init = tf.global_variables_initializer()  # all_variables_initializer() is delete
 
 # start seession
 sess = tf.Session()
 sess.run(init)
-
-merged = tf.summary.merge_all()
-writer = tf.summary.FileWriter('/Users/zt/Desktop/TensorFlow/logs/', sess.graph)
-
 sess.run(init_op, feed_dict={X: full_data_x})
 
 # training
-begin = time.time()
-
 for i in range(num_steps + 1):
     _, d, idx = sess.run([train_op, avg_distance, cluster_idx],
                          feed_dict={X: full_data_x})
-    rs = sess.run(merged, feed_dict={X: full_data_x})
-    writer.add_summary(rs, i)
     if i % 10 == 0 or i == 1:
         print("Step {0} : Avg-distance = {1:.4f}".format(i, d))
-
-end = time.time()
-print('Time: {0:.6f} s.'.format(end - begin))
 
 counts = np.zeros(shape=(k, num_classes))
 for i in range(len(idx)):
@@ -97,13 +79,16 @@ test_X, test_y = mnist.test.images, mnist.test.labels
 print("accuracy: {0:.4f}".format(sess.run(accuracy_value, feed_dict={X: test_X, y: test_y})))
 
 
-##----------------------------------
-# when k = 500, temperature of my Macbook Pro CPU core come to 100 ℃ , get accuracy 0.9345
+##----------------------------------------------------------------------------------------
+"""
+Apr 1, 2018
+when k = 500, temperature of my Macbook Pro CPU core come to 100 ℃ and model gets accuracy 0.9345.
+Macbook don't have NVIDIA GPU. And I can't afford eGPUs.  TAT
+Sorry my dear.
 
-
-
-
-
+Apr 3, 2018
+I use my old pc with Nvidia GeForce GT650m. But it still used 41 senconds.So disappointed.
+"""
 
 
 
