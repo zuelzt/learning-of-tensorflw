@@ -47,9 +47,9 @@ with tf.name_scope('Model'):
 # cost
 with tf.name_scope('Cost'):  # 测试四种损失函数
     #cost = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels=y, logits=pred)) 
-    cost = - tf.reduce_mean(tf.reduce_sum(tf.add(y*tf.log(pred), (E - y)*tf.log(E - pred)), reduction_indices=1))
+    #cost = - tf.reduce_mean(tf.reduce_sum(tf.add(y*tf.log(pred), (E - y)*tf.log(E - pred)), reduction_indices=1))
     #cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y, logits=pred))
-    #cost = - tf.reduce_mean(tf.reduce_sum(y*tf.log(pred), reduction_indices=1))
+    cost = - tf.reduce_mean(tf.reduce_sum(y*tf.log(pred), reduction_indices=1))
     tf.summary.scalar('cost', cost)
     
 # optimizer
