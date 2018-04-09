@@ -17,8 +17,8 @@ import time
 mnist = input_data.read_data_sets("/Users/zt/Desktop/Master File/practice of python/MNIST_data/", one_hot=True)
 
 # hyperparameter
-learning_rate = 0.001
-repeat = 500
+learning_rate = 0.01
+repeat = 300
 batch_size = 100
 display_step = 1
 log_path = '/Users/zt/Desktop/logs'
@@ -45,10 +45,13 @@ with tf.name_scope('Model'):
     pred = tf.nn.softmax(tf.add(tf.matmul(X, w), b))
     
 # cost
-with tf.name_scope('Cost'):
+with tf.name_scope('Cost'):  # 测试四种损失函数
+    #cost = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels=y, logits=pred)) 
     cost = - tf.reduce_mean(tf.reduce_sum(tf.add(y*tf.log(pred), (E - y)*tf.log(E - pred)), reduction_indices=1))
+    #cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y, logits=pred))
+    #cost = - tf.reduce_mean(tf.reduce_sum(y*tf.log(pred), reduction_indices=1))
     tf.summary.scalar('cost', cost)
-
+    
 # optimizer
 with tf.name_scope('Optimizer'):
     optimizer = tf.train.GradientDescentOptimizer(learning_rate).minimize(cost)
@@ -84,32 +87,3 @@ print('Total: {} s'.format(end-begin))
 test_accuracy = sess.run(acc, feed_dict={X: mnist.test.images,
                                 y: mnist.test.labels})
 print('Test Accuracy: {0:.3f}'.format(test_accuracy))
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
