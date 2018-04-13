@@ -19,8 +19,8 @@ mnist = input_data.read_data_sets('/Users/zt/Desktop/Master File/practice of pyt
 
 # hyperparameter
 learning_rate = 0.01
-train_step = 50
-batch_size = 1000
+train_step = 100
+batch_size = 1000 
 display_step = 50
 log_path = '/Users/zt/Desktop/logs/'
 
@@ -73,8 +73,8 @@ with tf.name_scope('Cost'):
     cost = tf.reduce_mean(tf.pow(y-pred, 2))
     tf.summary.scalar('Cost', cost)
     
-# RMSProp
-optimizer = tf.train.RMSPropOptimizer(learning_rate).minimize(cost)
+# optimizer
+optimizer = tf.train.AdamOptimizer(learning_rate).minimize(cost)
 
 # accuracy
 with tf.name_scope('Accuracy'):
@@ -108,7 +108,7 @@ for step in range(train_step):
 end = time.time()
 
 # results
-print('final accuracy:{0:.5f} ----- Total:{} s!'.format(acc, end-begin))
+print('final accuracy:{0:.3f} ----- Total:{1} s!'.format(acc, end-begin))
 
 # test
 n = 10  # display 
@@ -132,6 +132,7 @@ print('coder')
 plt.figure(figsize=(n, n))
 plt.imshow(pred_image, cmap='gray', origin='upper')
 plt.show()
+
 
 
 
