@@ -14,6 +14,7 @@ import os
 import numpy as np
 import pandas as pd
 import time
+import csv
 
 data_folder = os.path.join('/Users/zt', 'Desktop/Master File/practice of python/Data',
                            'NBA')
@@ -28,7 +29,8 @@ results.columns = ["Date", "Score Type", "Visitor Team", "VisitorPts", "Home Tea
 # label
 results['HomeWin'] = results['VisitorPts'] < results['HomePts']
 y = results['HomeWin'].values
-y = np.array(y, dtype='bool')
+y = np.array(y, dtype='float')
+y = np.reshape(y, [-1,1])
 
 # 设定特征
 #特征1  上一场获胜
@@ -234,8 +236,18 @@ x = results[['HomeLastWin', 'VisitorLastWin', 'HomeWinStreak',
              'Home Game Seq', 'Visitor Game Seq', 'Home Last5', 'Visitor Last5',
              'WhoWin']].values
 
+# save
+with open('/Users/zt/Desktop/x.csv','w') as nba:
+    writer= csv.writer(nba)
+    for i in range(len(x)):
+            writer.writerow([x[i][j] for j in range(len(x[i]))])
+            
 # tf
-
+# import
+with open('/Users/zt/Desktop/x.csv','r') as nba:
+    read = csv.reader(nba)
+    x = np.array([i for i in read], dtype='float')
+        
 # hyperparameter
 learning_rate = 0.001
 train_step = 3000
@@ -251,20 +263,20 @@ n_output = 1
 # placeholder
 with tf.name_scope('Placeholder'):
     X = tf.placeholder(tf.float32, [None, n_input], name='X')
-    y = tf.placeholder(tf.float32, [None, n_output], name='y')
+    Y = tf.placeholder(tf.float32, [None, n_output], name='Y')
     
 # weights, biases
 with tf.name_scope('Parameter'):
     with tf.name_scope('Weights'):
-        w = {'w_i': tf.Variable(tf.random.randn([n_input, n_layer_1]), name='w_i'),
-             'w_1': tf.Variable(tf.random.randn([n_layer_1, n_layer_2]), name='w_1'),
-             'w_2': tf.Variable(tf.random.randn([n_layer_2, n_output]), name='w_2')}
+        w = {'w_i': tf.Variable(tf.random_normal([n_input, n_layer_1]), name='w_i'),
+             'w_1': tf.Variable(tf.random_normal([n_layer_1, n_layer_2]), name='w_1'),
+             'w_2': tf.Variable(tf.random_normal([n_layer_2, n_output]), name='w_2')}
         for name in w.keys():
             tf.summary.histogram(name, w[name])
     with tf.name_scope('Biases'):
-        b = {'b_i': tf.Variable(tf.random.randn([n_layer_1]), name='b_i'),
-             'b_1': tf.Variable(tf.random.randn([n_layer_2]), name='b_1'),
-             'b_2': tf.Variable(tf.random.randn([n_output]), name='b_2')}
+        b = {'b_i': tf.Variable(tf.random_normal([n_layer_1]), name='b_i'),
+             'b_1': tf.Variable(tf.random_normal([n_layer_2]), name='b_1'),
+             'b_2': tf.Variable(tf.random_normal([n_output]), name='b_2')}
         for name in b.keys():
             tf.summary.histogram(name, b[name])
             
@@ -280,12 +292,12 @@ with tf.name_scope('Model'):
     
 # cost
 with tf.name_scope('Cost'):
-    cost = tf.reduce_mean(tf.pow(y-pred, 2))
+    cost = tf.reduce_mean(tf.pow(Y-pred, 2))
     tf.summary.scalar('cost', cost)
  
 # accuracy
 with tf.name_scope('Accuracy'):
-    accuracy = tf.reduce_mean(tf.cast(tf.equal(tf.cast(y, tf.bool), pred>0.5), tf.float32))
+    accuracy = tf.reduce_mean(tf.cast(tf.equal(tf.cast(Y, tf.bool), pred>0.5), tf.float32))
 # optimizer
 with tf.name_scope('Optimizer'):
     optimizer = tf.train.AdamOptimizer(learning_rate).minimize(cost)
@@ -299,17 +311,13 @@ writer = tf.summary.FileWriter(log_path, sess.graph)
 # train
 begin = time.time()
 sess.run(init)
-for step in train_step:
-    _, mer, costs, acc = sess.run(optimizer, merged, cost, accuracy, feed_dict={X: x})
+for step in range(train_step):
+    _, mer, costs, acc = sess.run([optimizer, merged, cost, accuracy], feed_dict={X: x, Y: y})
     if (step+1) % display_step == 0:
        writer.add_summary(mer, step)
        print('Step:{0} --- cost:{1:.4f} --- accuracy:{2:.4f}'.format(step+1, costs, acc))
 end = time.time()
 print('Total: {} s !'.format(end-begin))
-
-
-
-
 
 
 
